@@ -1,11 +1,18 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-  const user = { "username": "CWC" }
+const dbMongo = require('../helpers/mongodb')
 
-  res.send(user);
+/* GET users listing. */
+router.get('/', async function(req, res, next) {
+  // const user = { "username": "CWC24" }
+  try {
+    let user = await dbMongo.run_query('user', {});
+
+    res.send(user);
+  } catch (err) {
+    console.log(err)
+  }
 });
 
 module.exports = router;
