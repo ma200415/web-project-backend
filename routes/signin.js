@@ -2,16 +2,12 @@ var express = require('express');
 var router = express.Router();
 
 const dbMongo = require('../helpers/mongodb')
+const auth = require('../services/auth')
 
 const signInUser = {
   email: '',
   password: ''
 };
-
-const responseSuccess = {
-  success: true,
-  message: ''
-}
 
 const responseFail = {
   errorType: '',
@@ -23,17 +19,18 @@ router.post('/', async function (req, res, next) {
     signInUser.email = req.body.email
     signInUser.password = req.body.password
 
+    const authToken = await auth.getAuthToken()
+    // console.log(authToken)
+
     const result = await dbMongo.query('user', { email: signInUser.email });
 
     if (result.length > 0) {
-      const firstResult = result[0]
+      const firstMatch = result[0]
 
-      const match = await dbMongo.comparePassword(signInUser.password, firstResult.password);
+      const isMatch = await dbMongo.comparePassword(signInUser.password, firstMatch.password);
 
-      if (match) {
-        responseSuccess.message = `Welcome ${firstResult.firstName} ${firstResult.lastName}!`
-
-        res.send(responseSuccess);
+      if (isMatch) {
+        res.send({ success: true });
 
         return;
       } else {
