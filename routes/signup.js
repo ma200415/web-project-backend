@@ -19,7 +19,7 @@ router.post('/', async function (req, res, next) {
 
         for (const [key, value] of Object.entries(signUpUser)) {
             if (!value || value.trim() === '') {
-                res.send({ status: false, message: `${key.toUpperCase()} is missing` });
+                res.send({ success: false, message: `${key.toUpperCase()} is missing` });
 
                 return;
             }
@@ -29,9 +29,9 @@ router.post('/', async function (req, res, next) {
 
         const result = await dbMongo.insertOne('user', signUpUser);
 
-        res.send({ status: result.status, message: (result.status ? `Welcome ${signUpUser.firstName} ${signUpUser.lastName}!` : result.message) });
+        res.send({ success: result.success, message: (result.success ? `Welcome ${signUpUser.firstName} ${signUpUser.lastName}!` : result.message) });
     } catch (err) {
-        res.send({ status: false, message: err });
+        res.send({ success: false, message: String(err) });
     }
 });
 
