@@ -3,26 +3,29 @@ var router = express.Router();
 
 const dbMongo = require('../helpers/mongodb')
 
-/* GET users listing. */
-// router.get('/', async function (req, res, next) {
-//   // const user = { "username": "CWC24" }
-//   try {
-//     let user = await dbMongo.run_query('user', {});
-
-//     res.send(user);
-//   } catch (err) {
-//     console.log(err)
-//   }
-// });
+const signInUser = {
+  email: '',
+  password: ''
+};
 
 router.post('/', async function (req, res, next) {
   try {
-    console.log(req.body)
-    let user = await dbMongo.run_query('user', {});
+    signInUser.email = req.body.email
+    signInUser.password = req.body.password
 
-    res.send(user);
+    const result = await dbMongo.query('user', { email: signInUser.email });
+
+    if (result.length > 0) {
+      const firstResult = result[0]
+
+      const match = await dbMongo.comparePassword(signInUser.password, firstResult.password);
+
+      res.send({ status: match, message: (match ? `Welcome ${firstResult.firstName} ${firstResult.lastName}!` : 'Password is not correct') });
+    } else {
+      res.send({ status: false, message: 'User not found' });
+    }
   } catch (err) {
-    console.log(err)
+    res.send({ status: false, message: err });
   }
 });
 
