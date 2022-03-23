@@ -28,8 +28,8 @@ exports.insertOne = async function (collection, data) {
     .db(DATABASE_NAME)
     .collection(collection)
     .insertOne(data)
-    .then(result => ({ status: true, result: result }))
-    .catch(err => ({ status: false, message: err }))
+    .then(result => ({ success: true, result: result }))
+    .catch(err => ({ success: false, message: err }))
 }
 
 const bcrypt = require('bcrypt');
