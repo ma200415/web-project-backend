@@ -19,9 +19,6 @@ router.post('/', async function (req, res, next) {
     signInUser.email = req.body.email
     signInUser.password = req.body.password
 
-    const authToken = await auth.getAuthToken()
-    // console.log(authToken)
-
     const result = await dbMongo.query('user', { email: signInUser.email });
 
     if (result.length > 0) {
@@ -30,9 +27,16 @@ router.post('/', async function (req, res, next) {
       const isMatch = await dbMongo.comparePassword(signInUser.password, firstMatch.password);
 
       if (isMatch) {
-        res.send({ success: true });
+        const authToken = auth.genAuthToken(signInUser)
 
-        return;
+        if (authToken) {
+          res.send({ success: true, authToken: authToken });
+
+          return;
+        } else {
+          responseFail.errorType = 'error'
+          responseFail.message = 'Get auth token failed'
+        }
       } else {
         responseFail.errorType = 'password'
         responseFail.message = 'Password is not correct'
