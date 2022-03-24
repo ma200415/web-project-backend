@@ -10,6 +10,11 @@ const signUpUser = {
     password: ''
 };
 
+const responseFail = {
+    errorType: '',
+    message: ''
+}
+
 router.post('/', async function (req, res, next) {
     try {
         signUpUser.lastName = req.body.lastName;
@@ -18,21 +23,33 @@ router.post('/', async function (req, res, next) {
         signUpUser.password = req.body.password;
 
         for (const [key, value] of Object.entries(signUpUser)) {
-            if (!value || value.trim() === '') {
-                res.send({ success: false, message: `${key.toUpperCase()} is missing` });
+            if (!value || value.trim() == '') {
+                res.send({ errorType: key, message: `${key.toUpperCase()} is missing` });
 
                 return;
             }
         }
 
-        signUpUser.password = await dbMongo.hash(signUpUser.password);
+        const findExistsUser = await dbMongo.query('user', { email: signUpUser.email });
 
-        const result = await dbMongo.insertOne('user', signUpUser);
+        if (findExistsUser.length > 0) {
+            responseFail.errorType = 'email'
+            responseFail.message = 'Email has been registered'
+        } else {
+            signUpUser.password = await dbMongo.hash(signUpUser.password);
 
-        res.send({ success: result.success, message: (result.success ? `Welcome ${signUpUser.firstName} ${signUpUser.lastName}!` : result.message) });
+            const result = await dbMongo.insertOne('user', signUpUser);
+
+            res.send({ success: result.success, message: (result.success ? `Welcome ${signUpUser.firstName} ${signUpUser.lastName}!` : result.message) });
+
+            return
+        }
     } catch (err) {
-        res.send({ success: false, message: String(err) });
+        responseFail.errorType = 'error'
+        responseFail.message = String(err)
     }
+
+    res.send(responseFail);
 });
 
 module.exports = router;

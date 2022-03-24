@@ -19,6 +19,14 @@ router.post('/', async function (req, res, next) {
     signInUser.email = req.body.email
     signInUser.password = req.body.password
 
+    for (const [key, value] of Object.entries(signInUser)) {
+      if (!value || value.trim() == '') {
+        res.send({ errorType: key, message: `${key.toUpperCase()} is empty` });
+
+        return;
+      }
+    }
+
     const result = await dbMongo.query('user', { email: signInUser.email });
 
     if (result.length > 0) {
