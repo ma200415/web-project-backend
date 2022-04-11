@@ -18,6 +18,39 @@ const responseFail = {
     message: ''
 }
 
+router.post('/', async function (req, res, next) {
+    try {
+        const payload = {}
+
+        if (req.body.name != null && String(req.body.name).trim() != '') {
+            payload.name = req.body.name
+        }
+
+        if (req.body.breed != null && String(req.body.breed).trim() != '') {
+            payload.breed = req.body.breed
+        }
+
+        if (req.body.age != null && String(req.body.age).trim() != '') {
+            payload.age = req.body.age
+        }
+
+        if (req.body.gender != null && String(req.body.gender).trim() != '') {
+            payload.gender = req.body.gender
+        }
+
+        const result = await dbMongo.query('dog', payload);
+
+        res.send(result);
+
+        return
+    } catch (err) {
+        responseFail.errorType = 'error'
+        responseFail.message = String(err)
+    }
+
+    res.send(responseFail);
+});
+
 router.post('/add', async function (req, res, next) {
     try {
         const form = new formidable.IncomingForm();
