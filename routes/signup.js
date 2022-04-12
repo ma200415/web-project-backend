@@ -7,7 +7,8 @@ const signUpUser = {
     lastName: '',
     firstName: '',
     email: '',
-    password: ''
+    password: '',
+    admin: false
 };
 
 const responseFail = {
@@ -21,9 +22,10 @@ router.post('/', async function (req, res, next) {
         signUpUser.firstName = req.body.firstName;
         signUpUser.email = req.body.email;
         signUpUser.password = req.body.password;
+        signUpUser.admin = req.body.admin;
 
         for (const [key, value] of Object.entries(signUpUser)) {
-            if (!value || value.trim() == '') {
+            if (!value || String(value).trim() == '') {
                 res.send({ errorType: key, message: `${key.toUpperCase()} is missing` });
 
                 return;
@@ -34,7 +36,7 @@ router.post('/', async function (req, res, next) {
 
         if (findExistsUser.length > 0) {
             responseFail.errorType = 'email'
-            responseFail.message = 'Email has been registered'
+            responseFail.message = 'Email already exists'
         } else {
             signUpUser.password = await dbMongo.hash(signUpUser.password);
 
