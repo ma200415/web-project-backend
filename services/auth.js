@@ -31,3 +31,24 @@ exports.verifyAuthToken = (token) => {
         return { errorType: errorType, message: error.message }
     }
 }
+
+exports.getBearerTokenPayload = (req) => {
+    const headerAuth = req.headers['authorization']
+
+    if (headerAuth) {
+        const bearerToken = headerAuth.split(' ')[1]
+
+        const result = this.verifyAuthToken(bearerToken)
+
+        if (result.success) {
+            return { success: true, user: result }
+        } else {
+            return result
+        }
+
+    } else {
+        const missingBearer = "Bearer is missing"
+
+        return missingBearer
+    }
+}
