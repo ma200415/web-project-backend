@@ -35,7 +35,10 @@ router.post('/', async function (req, res, next) {
       const isMatch = await dbMongo.comparePassword(signInUser.password, firstMatch.password);
 
       if (isMatch) {
-        const authToken = auth.genAuthToken(signInUser)
+        const userPayload = firstMatch
+        delete userPayload['password'];
+
+        const authToken = auth.genAuthToken(userPayload)
 
         if (authToken) {
           res.send({ success: true, authToken: authToken });
