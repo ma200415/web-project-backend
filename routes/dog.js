@@ -18,6 +18,8 @@ const responseFail = {
     message: ''
 }
 
+const doc = "dog"
+
 router.post('/', async function (req, res, next) {
     try {
         const payload = {}
@@ -38,7 +40,7 @@ router.post('/', async function (req, res, next) {
             payload.gender = req.body.gender
         }
 
-        const result = await dbMongo.query('dog', payload);
+        const result = await dbMongo.query(doc, payload);
 
         res.send(result);
 
@@ -66,18 +68,72 @@ router.post('/add', async function (req, res, next) {
             //     }
             // })
 
-            dog.name = fields.name
-            dog.breed = fields.breed
-            dog.age = fields.age
-            dog.gender = fields.gender
-            // dog.photo = fields.photo
+            if (fields.name == null || String(fields.name).trim() == "") {
+                responseFail.errorType = "name"
+                responseFail.message = "Required*"
 
-            const result = await dbMongo.insertOne('dog', dog);
+                res.send(responseFail);
+            } else if (fields.breed == null || String(fields.breed).trim() == "") {
+                responseFail.errorType = 'breed'
+                responseFail.message = "Required*"
 
-            res.send({ success: result.success, message: (result.success ? '' : result.message) });
+                res.send(responseFail);
+            } else {
+                dog.name = fields.name
+                dog.breed = fields.breed
+                dog.age = fields.age
+                dog.gender = fields.gender
+                // dog.photo = fields.photo
 
-            return
+                const result = await dbMongo.insertOne(doc, dog);
+
+                res.send({ success: result.success, message: result.message });
+            }
         });
+    } catch (err) {
+        responseFail.errorType = 'error'
+        responseFail.message = String(err)
+
+        res.send(responseFail);
+    }
+});
+
+router.post('/edit', async function (req, res, next) {
+    try {
+        const form = new formidable.IncomingForm();
+
+        form.parse(req, async (err, fields, files) => {
+            if (fields.breed == null || String(fields.breed).trim() == "") {
+                responseFail.errorType = 'breed'
+                responseFail.message = "Required*"
+
+                res.send(responseFail);
+            } else {
+                dog.name = fields.name
+                dog.breed = fields.breed
+                dog.age = fields.age
+                dog.gender = fields.gender
+
+                const result = await dbMongo.replaceOne(doc, fields.dogId, dog);
+
+                res.send(result);
+            }
+        });
+    } catch (err) {
+        responseFail.errorType = 'error'
+        responseFail.message = String(err)
+
+        res.send(responseFail);
+    }
+});
+
+router.post('/delete', async function (req, res, next) {
+    try {
+        const result = await dbMongo.deleteOne(doc, req.body.id);
+
+        res.send({ success: result.success, message: result.message });
+
+        return
     } catch (err) {
         responseFail.errorType = 'error'
         responseFail.message = String(err)
@@ -87,7 +143,7 @@ router.post('/add', async function (req, res, next) {
 });
 
 router.get('/all', async function (req, res, next) {
-    const result = await dbMongo.query('dog', {});
+    const result = await dbMongo.query(doc, {});
 
     res.send(result);
 })
