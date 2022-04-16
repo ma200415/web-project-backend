@@ -11,7 +11,7 @@ const CONNECTION_URI = `mongodb+srv://${mongo_username}:${mongo_password}@${mong
 
 const client = new MongoClient(CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-exports.query = async function (collection, query) {
+exports.find = async function (collection, query) {
   const dbClient = await client.connect();
 
   return await dbClient
@@ -19,6 +19,15 @@ exports.query = async function (collection, query) {
     .collection(collection)
     .find(query)
     .toArray();
+}
+
+exports.findOne = async function (collection, query) {
+  const dbClient = await client.connect();
+
+  return await dbClient
+    .db(DATABASE_NAME)
+    .collection(collection)
+    .findOne(query)
 }
 
 exports.insertOne = async function (collection, data) {
