@@ -35,7 +35,7 @@ router.post('/', async function (req, res, next) {
             payload.gender = req.body.gender
         }
 
-        const result = await dbMongo.query(doc, payload);
+        const result = await dbMongo.find(doc, payload);
 
         res.status(200).end(JSON.stringify(result));
 
@@ -100,6 +100,7 @@ router.post('/add', async function (req, res, next) {
                 dog.birth = fields.birth
                 dog.gender = fields.gender
                 dog.addBy = userPayload.user.payload._id
+                dog.addTimestamp = new Date()
 
                 const result = await dbMongo.insertOne(doc, dog);
 
@@ -158,13 +159,15 @@ router.post('/edit', async function (req, res, next) {
                             break;
                     }
                 } else {
-                    dog.photo = fields.photo
+                    dog.photo = fields.photo != null && String(fields.photo).trim() != "" && String(fields.photo) != "null" ? fields.photo : null
                 }
 
+                dog.name = fields.name
                 dog.breed = fields.breed
                 dog.birth = fields.birth
                 dog.gender = fields.gender
                 dog.editBy = userPayload.user.payload._id
+                dog.editTimestamp = new Date()
 
                 const result = await dbMongo.updateOne(doc, fields.dogId, dog);
 

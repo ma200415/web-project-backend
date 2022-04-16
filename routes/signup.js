@@ -27,7 +27,7 @@ router.post('/', async function (req, res, next) {
             }
         }
 
-        const findExistsUser = await dbMongo.query('user', { email: signUpUser.email });
+        const findExistsUser = await dbMongo.find('user', { email: signUpUser.email });
 
         if (findExistsUser.length > 0) {
             responseFail = new ResponseFail("email", 'Email already exists')

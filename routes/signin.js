@@ -26,7 +26,7 @@ router.post('/', async function (req, res, next) {
       }
     }
 
-    const result = await dbMongo.query('user', { email: signInUser.email });
+    const result = await dbMongo.find('user', { email: signInUser.email });
 
     if (result.length > 0) {
       const firstMatch = result[0]
@@ -74,7 +74,7 @@ router.get('/all', async function (req, res, next) {
     return
   }
 
-  const result = await dbMongo.query('user', {});
+  const result = await dbMongo.find('user', {});
 
   res.status(200).end(JSON.stringify(result));
 
