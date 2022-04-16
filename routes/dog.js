@@ -156,8 +156,11 @@ router.post('/edit', async function (req, res, next) {
                 dog.gender = fields.gender
 
                 const result = await dbMongo.replaceOne(doc, fields.dogId, dog);
+                const result = await dbMongo.updateOne(doc, fields.dogId, dog);
 
                 res.send(result);
+                res.status(200).end(JSON.stringify(result));
+                return
             }
         });
 
