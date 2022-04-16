@@ -3,7 +3,7 @@ var router = express.Router();
 
 const dbMongo = require('../helpers/mongodb');
 
-const SignUpUser = require('../helpers/SignUpUserModel')
+const SignUpUser = require('../helpers/signUpUserModel')
 const ResponseFail = require('../helpers/responseFailModel')
 
 router.post('/', async function (req, res, next) {

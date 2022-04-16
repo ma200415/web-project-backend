@@ -3,13 +3,13 @@ var router = express.Router();
 
 const dbMongo = require('../helpers/mongodb')
 
-const SigninUser = require('../helpers/signinUserModel')
+const SignInUser = require('../helpers/signInUserModel')
 const ResponseFail = require('../helpers/responseFailModel')
 
 const auth = require('../services/auth')
 
 router.post('/', async function (req, res, next) {
-  const signInUser = new SigninUser()
+  const signInUser = new SignInUser()
   let responseFail
 
   try {
