@@ -3,20 +3,13 @@ var router = express.Router();
 
 const dbMongo = require('../helpers/mongodb');
 
-const signUpUser = {
-    lastName: '',
-    firstName: '',
-    email: '',
-    password: '',
-    admin: false
-};
-
-const responseFail = {
-    errorType: '',
-    message: ''
-}
+const SignUpUser = require('../helpers/SignUpUserModel')
+const ResponseFail = require('../helpers/responseFailModel')
 
 router.post('/', async function (req, res, next) {
+    const signUpUser = new SignUpUser()
+    let responseFail
+
     try {
         signUpUser.lastName = req.body.lastName;
         signUpUser.firstName = req.body.firstName;
@@ -26,7 +19,9 @@ router.post('/', async function (req, res, next) {
 
         for (const [key, value] of Object.entries(signUpUser)) {
             if (!value || String(value).trim() == '') {
-                res.send({ errorType: key, message: `${key.toUpperCase()} is missing` });
+                responseFail = new ResponseFail(key, `${key.toUpperCase()} is missing`)
+
+                res.status(400).end(responseFail.json());
 
                 return;
             }
@@ -35,23 +30,23 @@ router.post('/', async function (req, res, next) {
         const findExistsUser = await dbMongo.query('user', { email: signUpUser.email });
 
         if (findExistsUser.length > 0) {
-            responseFail.errorType = 'email'
-            responseFail.message = 'Email already exists'
+            responseFail = new ResponseFail("email", 'Email already exists')
         } else {
             signUpUser.password = await dbMongo.hash(signUpUser.password);
 
             const result = await dbMongo.insertOne('user', signUpUser);
 
-            res.send({ success: result.success, message: (result.success ? `Welcome ${signUpUser.firstName} ${signUpUser.lastName}!` : result.message) });
+            res.status(200).end(JSON.stringify({ success: result.success, message: (result.success ? `Welcome ${signUpUser.firstName} ${signUpUser.lastName}!` : result.message) }));
 
             return
         }
     } catch (err) {
-        responseFail.errorType = 'error'
-        responseFail.message = String(err)
+        responseFail = new ResponseFail("error", String(err))
     }
 
-    res.send(responseFail);
+    res.status(400).end(responseFail.json());
+
+    return
 });
 
 module.exports = router;

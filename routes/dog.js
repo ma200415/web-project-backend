@@ -17,11 +17,16 @@ const responseFail = {
     errorType: '',
     message: ''
 }
+const Dog = require('../helpers/dogModel')
+const ResponseFail = require('../helpers/responseFailModel')
+
 const auth = require('../services/auth')
 
 const doc = "dog"
 
 router.post('/', async function (req, res, next) {
+    let responseFail
+
     try {
         const payload = {}
 
@@ -44,17 +49,26 @@ router.post('/', async function (req, res, next) {
         const result = await dbMongo.query(doc, payload);
 
         res.send(result);
+        res.status(200).end(JSON.stringify(result));
 
         return
     } catch (err) {
         responseFail.errorType = 'error'
         responseFail.message = String(err)
+        console.log("/dog/", err)
+
+        responseFail = new ResponseFail("error", String(err))
     }
 
     res.send(responseFail);
+    res.status(400).end(responseFail.json());
+
+    return
 });
 
 router.post('/add', async function (req, res, next) {
+    let responseFail
+
     try {
         const form = new formidable.IncomingForm();
         const userPayload = auth.getBearerTokenPayload(req)
@@ -77,13 +91,17 @@ router.post('/add', async function (req, res, next) {
             if (fields.name == null || String(fields.name).trim() == "") {
                 responseFail.errorType = "name"
                 responseFail.message = "Required*"
+                responseFail = new ResponseFail("name", "Required*")
 
                 res.send(responseFail);
+                res.status(400).end(responseFail.json());
             } else if (fields.breed == null || String(fields.breed).trim() == "") {
                 responseFail.errorType = 'breed'
                 responseFail.message = "Required*"
+                responseFail = new ResponseFail("breed", "Required*")
 
                 res.send(responseFail);
+                res.status(400).end(responseFail.json());
             } else {
                 dog.name = fields.name
                 dog.breed = fields.breed
@@ -99,12 +117,20 @@ router.post('/add', async function (req, res, next) {
     } catch (err) {
         responseFail.errorType = 'error'
         responseFail.message = String(err)
+        console.log("/dog/add", err)
 
         res.send(responseFail);
+        responseFail = new ResponseFail("error", String(err))
+
+        res.status(400).end(responseFail.json());
     }
+
+    return
 });
 
 router.post('/edit', async function (req, res, next) {
+    let responseFail
+
     try {
         const userPayload = auth.getBearerTokenPayload(req)
 
@@ -112,14 +138,19 @@ router.post('/edit', async function (req, res, next) {
             res.status(400).end(JSON.stringify(userPayload));
             return
         }
+
         const form = new formidable.IncomingForm();
 
         form.parse(req, async (err, fields, files) => {
             if (fields.breed == null || String(fields.breed).trim() == "") {
                 responseFail.errorType = 'breed'
                 responseFail.message = "Required*"
+                responseFail = new ResponseFail("breed", "Required*")
+
+                res.status(400).end(responseFail.json());
 
                 res.send(responseFail);
+                return
             } else {
                 dog.name = fields.name
                 dog.breed = fields.breed
@@ -131,15 +162,25 @@ router.post('/edit', async function (req, res, next) {
                 res.send(result);
             }
         });
+
+        return
     } catch (err) {
         responseFail.errorType = 'error'
         responseFail.message = String(err)
+        console.log("/dog/edit", err)
+
+        responseFail = new ResponseFail("error", String(err))
 
         res.send(responseFail);
+        res.status(400).end(responseFail.json());
     }
+
+    return
 });
 
 router.post('/delete', async function (req, res, next) {
+    let responseFail
+
     try {
         const userPayload = auth.getBearerTokenPayload(req)
 
@@ -156,14 +197,20 @@ router.post('/delete', async function (req, res, next) {
         responseFail.errorType = 'error'
         responseFail.message = String(err)
     }
+        console.log("/dog/delete", err)
 
     res.send(responseFail);
 });
+        responseFail = new ResponseFail("error", String(err))
 
 router.get('/all', async function (req, res, next) {
     const result = await dbMongo.query(doc, {});
+        res.status(400).end(responseFail.json());
 
     res.send(result);
 })
+        return
+    }
+});
 
 module.exports = router;
