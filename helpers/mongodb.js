@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const mongoAuth = require('../config')
 
@@ -28,6 +28,28 @@ exports.insertOne = async function (collection, data) {
     .db(DATABASE_NAME)
     .collection(collection)
     .insertOne(data)
+    .then(result => ({ success: true, result: result }))
+    .catch(err => ({ success: false, message: err }))
+}
+
+exports.deleteOne = async function (collection, id) {
+  const dbClient = await client.connect();
+
+  return await dbClient
+    .db(DATABASE_NAME)
+    .collection(collection)
+    .deleteOne({ "_id": ObjectId(id) })
+    .then(result => ({ success: true, result: result }))
+    .catch(err => ({ success: false, message: err }))
+}
+
+exports.replaceOne = async function (collection, id, data) {
+  const dbClient = await client.connect();
+
+  return await dbClient
+    .db(DATABASE_NAME)
+    .collection(collection)
+    .replaceOne({ "_id": ObjectId(id) }, data)
     .then(result => ({ success: true, result: result }))
     .catch(err => ({ success: false, message: err }))
 }
