@@ -38,8 +38,8 @@ router.post('/', async function (req, res, next) {
             payload.breed = req.body.breed
         }
 
-        if (req.body.age != null && String(req.body.age).trim() != '') {
-            payload.age = req.body.age
+        if (req.body.birth != null && String(req.body.birth).trim() != '') {
+            payload.birth = req.body.birth
         }
 
         if (req.body.gender != null && String(req.body.gender).trim() != '') {
@@ -48,19 +48,15 @@ router.post('/', async function (req, res, next) {
 
         const result = await dbMongo.query(doc, payload);
 
-        res.send(result);
         res.status(200).end(JSON.stringify(result));
 
         return
     } catch (err) {
-        responseFail.errorType = 'error'
-        responseFail.message = String(err)
         console.log("/dog/", err)
 
         responseFail = new ResponseFail("error", String(err))
     }
 
-    res.send(responseFail);
     res.status(400).end(responseFail.json());
 
     return
@@ -106,6 +102,7 @@ router.post('/add', async function (req, res, next) {
                 dog.name = fields.name
                 dog.breed = fields.breed
                 dog.age = fields.age
+                dog.birth = fields.birth
                 dog.gender = fields.gender
                 // dog.photo = fields.photo
 
@@ -155,6 +152,7 @@ router.post('/edit', async function (req, res, next) {
                 dog.name = fields.name
                 dog.breed = fields.breed
                 dog.age = fields.age
+                dog.birth = fields.birth
                 dog.gender = fields.gender
 
                 const result = await dbMongo.replaceOne(doc, fields.dogId, dog);
