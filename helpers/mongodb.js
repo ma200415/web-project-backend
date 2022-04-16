@@ -54,6 +54,17 @@ exports.replaceOne = async function (collection, id, data) {
     .catch(err => ({ success: false, message: err }))
 }
 
+exports.updateOne = async function (collection, id, data) {
+  const dbClient = await client.connect();
+
+  return await dbClient
+    .db(DATABASE_NAME)
+    .collection(collection)
+    .updateOne({ "_id": ObjectId(id) }, { $set: data })
+    .then(result => ({ success: true, result: result }))
+    .catch(err => ({ success: false, message: err }))
+}
+
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
