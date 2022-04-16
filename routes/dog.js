@@ -6,17 +6,6 @@ var router = express.Router();
 
 const dbMongo = require('../helpers/mongodb');
 
-const dog = {
-    name: '',
-    breed: '',
-    age: '',
-    gender: ''
-}
-
-const responseFail = {
-    errorType: '',
-    message: ''
-}
 const Dog = require('../helpers/dogModel')
 const ResponseFail = require('../helpers/responseFailModel')
 
@@ -66,57 +55,60 @@ router.post('/add', async function (req, res, next) {
     let responseFail
 
     try {
-        const form = new formidable.IncomingForm();
         const userPayload = auth.getBearerTokenPayload(req)
 
-        form.parse(req, async (err, fields, files) => {
-            // var filename = files.filetoupload.filepath;
         if (!userPayload.success) {
             res.status(400).end(JSON.stringify(userPayload));
             return
         }
 
-            // fs.readFile(filename, (err, data) => {
-            //     if (files.filetoupload.size > 0 && mimetype == "image/jpeg") {
-            //         console.log(new Buffer.from(data).toString('base64'));
-            //     } else {
-            //         console.log("not jpg");
-            //     }
-            // })
+        const form = new formidable.IncomingForm();
 
+        form.parse(req, async (err, fields, files) => {
             if (fields.name == null || String(fields.name).trim() == "") {
-                responseFail.errorType = "name"
-                responseFail.message = "Required*"
                 responseFail = new ResponseFail("name", "Required*")
 
-                res.send(responseFail);
                 res.status(400).end(responseFail.json());
             } else if (fields.breed == null || String(fields.breed).trim() == "") {
-                responseFail.errorType = 'breed'
-                responseFail.message = "Required*"
                 responseFail = new ResponseFail("breed", "Required*")
 
-                res.send(responseFail);
                 res.status(400).end(responseFail.json());
             } else {
+                const dog = new Dog()
+
+                const uploadPhoto = files.photo;
+
+                if (uploadPhoto.size > 0) {
+                    switch (uploadPhoto.mimetype) {
+                        case "image/jpeg":
+                        case "image/png":
+                            const buffer = fs.readFileSync(uploadPhoto.filepath)
+
+                            dog.photo = new Buffer.from(buffer).toString('base64')
+                            break;
+                        default:
+                            responseFail = new ResponseFail("error", "Upload file type is not supported")
+
+                            res.status(400).end(responseFail.json());
+
+                            break;
+                    }
+                }
+
                 dog.name = fields.name
                 dog.breed = fields.breed
-                dog.age = fields.age
                 dog.birth = fields.birth
                 dog.gender = fields.gender
-                // dog.photo = fields.photo
+                dog.addBy = userPayload.user.payload._id
 
                 const result = await dbMongo.insertOne(doc, dog);
 
-                res.send({ success: result.success, message: result.message });
+                res.status(200).end(JSON.stringify({ success: result.success, message: result.message }));
             }
         });
     } catch (err) {
-        responseFail.errorType = 'error'
-        responseFail.message = String(err)
         console.log("/dog/add", err)
 
-        res.send(responseFail);
         responseFail = new ResponseFail("error", String(err))
 
         res.status(400).end(responseFail.json());
@@ -140,25 +132,42 @@ router.post('/edit', async function (req, res, next) {
 
         form.parse(req, async (err, fields, files) => {
             if (fields.breed == null || String(fields.breed).trim() == "") {
-                responseFail.errorType = 'breed'
-                responseFail.message = "Required*"
                 responseFail = new ResponseFail("breed", "Required*")
 
                 res.status(400).end(responseFail.json());
 
-                res.send(responseFail);
                 return
             } else {
-                dog.name = fields.name
+                const dog = new Dog()
+
+                const uploadPhoto = files.photo;
+
+                if (uploadPhoto.size > 0) {
+                    switch (uploadPhoto.mimetype) {
+                        case "image/jpeg":
+                        case "image/png":
+                            const buffer = fs.readFileSync(uploadPhoto.filepath)
+
+                            dog.photo = new Buffer.from(buffer).toString('base64')
+                            break;
+                        default:
+                            responseFail = new ResponseFail("error", "Upload file type is not supported")
+
+                            res.status(400).end(responseFail.json());
+
+                            break;
+                    }
+                } else {
+                    dog.photo = fields.photo
+                }
+
                 dog.breed = fields.breed
-                dog.age = fields.age
                 dog.birth = fields.birth
                 dog.gender = fields.gender
+                dog.editBy = userPayload.user.payload._id
 
-                const result = await dbMongo.replaceOne(doc, fields.dogId, dog);
                 const result = await dbMongo.updateOne(doc, fields.dogId, dog);
 
-                res.send(result);
                 res.status(200).end(JSON.stringify(result));
                 return
             }
@@ -166,13 +175,10 @@ router.post('/edit', async function (req, res, next) {
 
         return
     } catch (err) {
-        responseFail.errorType = 'error'
-        responseFail.message = String(err)
         console.log("/dog/edit", err)
 
         responseFail = new ResponseFail("error", String(err))
 
-        res.send(responseFail);
         res.status(400).end(responseFail.json());
     }
 
@@ -189,27 +195,19 @@ router.post('/delete', async function (req, res, next) {
             res.status(400).end(JSON.stringify(userPayload));
             return
         }
+
         const result = await dbMongo.deleteOne(doc, req.body.id);
 
-        res.send({ success: result.success, message: result.message });
+        res.status(200).end(JSON.stringify({ success: result.success, message: result.message }));
 
         return
     } catch (err) {
-        responseFail.errorType = 'error'
-        responseFail.message = String(err)
-    }
         console.log("/dog/delete", err)
 
-    res.send(responseFail);
-});
         responseFail = new ResponseFail("error", String(err))
 
-router.get('/all', async function (req, res, next) {
-    const result = await dbMongo.query(doc, {});
         res.status(400).end(responseFail.json());
 
-    res.send(result);
-})
         return
     }
 });
