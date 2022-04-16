@@ -13,6 +13,7 @@ const responseFail = {
   errorType: '',
   message: ''
 }
+const auth = require('../services/auth')
 
 router.post('/', async function (req, res, next) {
   try {
@@ -64,4 +65,13 @@ router.post('/', async function (req, res, next) {
   res.send(responseFail);
 });
 
+  const userPayload = auth.getBearerTokenPayload(req)
+
+  if (!userPayload.success) {
+    res.status(400).end(JSON.stringify(userPayload));
+    return
+  } else if (!userPayload.user.payload.admin) {
+    res.status(400).end(JSON.stringify({ message: "You do not have permission to access" }));
+    return
+  }
 module.exports = router;

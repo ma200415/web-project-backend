@@ -4,19 +4,15 @@ var router = express.Router();
 const auth = require('../services/auth')
 
 router.post('/', async function (req, res, next) {
-    const bearer = req.headers['authorization']
+    const userPayload = auth.getBearerTokenPayload(req)
 
-    if (bearer) {
-        const bearerToken = bearer.split(' ')[1]
-
-        const result = auth.verifyAuthToken(bearerToken)
-
-        res.send(result);
-
-        return
+    if (userPayload.success) {
+        res.status(200).end(JSON.stringify(userPayload.user));
     } else {
-        res.send({ errorType: "error", message: "Bearer is missing" });
+        res.status(400).end(JSON.stringify(userPayload));
     }
+
+    return
 });
 
 module.exports = router; 

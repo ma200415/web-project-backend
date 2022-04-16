@@ -17,6 +17,7 @@ const responseFail = {
     errorType: '',
     message: ''
 }
+const auth = require('../services/auth')
 
 const doc = "dog"
 
@@ -56,9 +57,14 @@ router.post('/', async function (req, res, next) {
 router.post('/add', async function (req, res, next) {
     try {
         const form = new formidable.IncomingForm();
+        const userPayload = auth.getBearerTokenPayload(req)
 
         form.parse(req, async (err, fields, files) => {
             // var filename = files.filetoupload.filepath;
+        if (!userPayload.success) {
+            res.status(400).end(JSON.stringify(userPayload));
+            return
+        }
 
             // fs.readFile(filename, (err, data) => {
             //     if (files.filetoupload.size > 0 && mimetype == "image/jpeg") {
@@ -100,6 +106,12 @@ router.post('/add', async function (req, res, next) {
 
 router.post('/edit', async function (req, res, next) {
     try {
+        const userPayload = auth.getBearerTokenPayload(req)
+
+        if (!userPayload.success) {
+            res.status(400).end(JSON.stringify(userPayload));
+            return
+        }
         const form = new formidable.IncomingForm();
 
         form.parse(req, async (err, fields, files) => {
@@ -129,6 +141,12 @@ router.post('/edit', async function (req, res, next) {
 
 router.post('/delete', async function (req, res, next) {
     try {
+        const userPayload = auth.getBearerTokenPayload(req)
+
+        if (!userPayload.success) {
+            res.status(400).end(JSON.stringify(userPayload));
+            return
+        }
         const result = await dbMongo.deleteOne(doc, req.body.id);
 
         res.send({ success: result.success, message: result.message });
