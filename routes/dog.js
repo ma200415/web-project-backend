@@ -1,6 +1,7 @@
 var express = require('express');
 var formidable = require('formidable');
 var fs = require('fs');
+const { ObjectId } = require('mongodb');
 
 var router = express.Router();
 
@@ -220,5 +221,23 @@ router.post('/delete', async function (req, res, next) {
         return
     }
 });
+
+router.post('/name', async function (req, res, next) {
+    try {
+        const result = await dbMongo.findOne(doc, { _id: ObjectId(req.body.id) });
+
+        res.status(200).end(JSON.stringify(result));
+
+        return
+    } catch (error) {
+        console.log("/dog/name", error)
+
+        const responseFail = new ResponseFail("error", error)
+
+        res.status(200).end(responseFail);
+
+        return
+    }
+})
 
 module.exports = router;
