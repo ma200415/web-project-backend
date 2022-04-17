@@ -60,6 +60,9 @@ router.post('/add', async function (req, res, next) {
         if (!userPayload.success) {
             res.status(400).end(JSON.stringify(userPayload));
             return
+        } else if (!userPayload.user.payload.admin) {
+            res.status(400).end(JSON.stringify({ message: "You do not have permission to action" }));
+            return
         }
 
         const form = new formidable.IncomingForm();
@@ -197,9 +200,12 @@ router.post('/delete', async function (req, res, next) {
         if (!userPayload.success) {
             res.status(400).end(JSON.stringify(userPayload));
             return
+        } else if (!userPayload.user.payload.admin) {
+            res.status(400).end(JSON.stringify({ message: "You do not have permission to action" }));
+            return
         }
 
-        const result = await dbMongo.deleteOne(doc, req.body.id);
+        const result = await dbMongo.deleteOne(doc, req.body.dogId);
 
         res.status(200).end(JSON.stringify({ success: result.success, message: result.message }));
 
