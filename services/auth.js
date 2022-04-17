@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const privateKey = "4#%gce6$hUf^vleEL[e%(73"
 
 exports.genAuthToken = (payload = {}) => {
-    return jwt.sign(payload, privateKey, { expiresIn: '1h' })
+    return jwt.sign(payload, privateKey, { expiresIn: '7d' })
 }
 
 exports.verifyAuthToken = (token) => {
