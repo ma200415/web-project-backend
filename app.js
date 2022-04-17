@@ -10,6 +10,7 @@ const signupRouter = require('./routes/signup');
 const authRouter = require('./routes/auth');
 const dogRouter = require('./routes/dog');
 const userRouter = require('./routes/user');
+const bookingRouter = require('./routes/booking');
 
 var app = express();
 
@@ -30,6 +31,7 @@ app.use('/signup', signupRouter);
 app.use('/auth', authRouter);
 app.use('/dog', dogRouter);
 app.use('/user', userRouter);
+app.use('/booking', bookingRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
