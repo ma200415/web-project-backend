@@ -4,6 +4,7 @@ class Dog {
     birth
     gender
     photo
+    location
 }
 
 module.exports = Dog;

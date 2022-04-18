@@ -61,7 +61,7 @@ router.post('/add', async function (req, res, next) {
         if (!userPayload.success) {
             res.status(400).end(JSON.stringify(userPayload));
             return
-        } else if (!userPayload.user.payload.admin) {
+        } else if (userPayload.user.payload.role !== "employee") {
             res.status(400).end(JSON.stringify({ message: "You do not have permission to action" }));
             return
         }
@@ -103,6 +103,7 @@ router.post('/add', async function (req, res, next) {
                 dog.breed = fields.breed
                 dog.birth = fields.birth
                 dog.gender = fields.gender
+                dog.location = fields.location
                 dog.addBy = userPayload.user.payload._id
                 dog.addTimestamp = new Date()
 

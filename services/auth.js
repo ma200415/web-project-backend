@@ -2,6 +2,9 @@ const jwt = require('jsonwebtoken');
 
 const privateKey = "4#%gce6$hUf^vleEL[e%(73"
 
+exports.adminCode = () => "thisisthecodeforadmin"
+exports.employeeCode = () => "thisisthecodeforemployee"
+
 exports.genAuthToken = (payload = {}) => {
     return jwt.sign(payload, privateKey, { expiresIn: '7d' })
 }

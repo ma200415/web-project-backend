@@ -4,6 +4,7 @@ class SignUpUser {
     email
     password
     admin = false
+    role
 };
 
 module.exports = SignUpUser;

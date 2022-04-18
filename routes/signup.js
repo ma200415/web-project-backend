@@ -6,16 +6,32 @@ const dbMongo = require('../helpers/mongodb');
 const SignUpUser = require('../helpers/signUpUserModel')
 const ResponseFail = require('../helpers/responseFailModel')
 
+const auth = require('../services/auth')
+
 router.post('/', async function (req, res, next) {
     const signUpUser = new SignUpUser()
     let responseFail
 
     try {
+        //general info
         signUpUser.lastName = req.body.lastName;
         signUpUser.firstName = req.body.firstName;
         signUpUser.email = req.body.email;
-        signUpUser.password = req.body.password;
-        signUpUser.admin = req.body.admin;
+        signUpUser.password = await dbMongo.hash(req.body.password);
+        signUpUser.createTimestamp = new Date()
+
+        switch (req.body.code) {
+            case auth.adminCode():
+                signUpUser.admin = true;
+                signUpUser.role = "employee"
+                break;
+            case auth.employeeCode():
+                signUpUser.role = "employee"
+                break;
+            default: //public
+                signUpUser.role = "public"
+                break;
+        }
 
         for (const [key, value] of Object.entries(signUpUser)) {
             if (key != "admin" && (!value || String(value).trim() == '')) {
@@ -35,9 +51,6 @@ router.post('/', async function (req, res, next) {
             res.status(200).end(responseFail.json());
             return
         } else {
-            signUpUser.password = await dbMongo.hash(signUpUser.password);
-            signUpUser.createTimestamp = new Date()
-
             const result = await dbMongo.insertOne('user', signUpUser);
 
             res.status(200).end(JSON.stringify({ success: result.success, message: (result.success ? `Welcome ${signUpUser.firstName} ${signUpUser.lastName}!` : result.message) }));
