@@ -1,7 +1,7 @@
 class Dog {
     name
     breed
-    birth
+    birthday
     gender
     photo
     location

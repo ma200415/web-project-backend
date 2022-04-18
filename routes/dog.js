@@ -89,7 +89,7 @@ router.post('/add', async function (req, res, next) {
 
                 dog.name = fields.name
                 dog.breed = fields.breed
-                dog.birth = fields.birth
+                dog.birthday = fields.birthday
                 dog.gender = fields.gender
                 dog.location = fields.location
                 dog.addBy = userPayload.user.payload._id
@@ -150,7 +150,7 @@ router.post('/edit', async function (req, res, next) {
 
             dog.name = fields.name
             dog.breed = fields.breed
-            dog.birth = fields.birth
+            dog.birthday = fields.birthday
             dog.gender = fields.gender
             dog.location = fields.location
             dog.editBy = userPayload.user.payload._id

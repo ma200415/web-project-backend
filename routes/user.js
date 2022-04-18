@@ -27,6 +27,34 @@ router.post('/name', async (req, res, next) => {
     return
   }
 })
+
+router.post('/delete', async function (req, res, next) {
+  const result = await dbMongo.deleteOne(req.body.doc, req.body.id);
+
+  const result2 = await dbMongo.find(req.body.doc, {});
+
+  res.status(200).end(JSON.stringify({ success: result.success, message: result.message, result: result2 }));
+  return
+});
+
+router.get('/all', async function (req, res, next) {
+  const userPayload = auth.getBearerTokenPayload(req)
+
+  if (!userPayload.success) {
+    res.status(400).end(JSON.stringify(userPayload));
+    return
+  } else if (userPayload.user.payload.role !== "employee") {
+    res.status(400).end(JSON.stringify({ message: "You do not have permission to access" }));
+    return
+  }
+
+  const result = await dbMongo.find(doc, {});
+
+  res.status(200).end(JSON.stringify(result));
+
+  return
+})
+
 router.post('/bookmark', async (req, res, next) => {
   let responseFail
 
