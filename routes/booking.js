@@ -42,13 +42,6 @@ router.post('/booked', async function (req, res) {
     let responseFail
 
     try {
-        const userPayload = auth.getBearerTokenPayload(req)
-
-        if (!userPayload.success) {
-            res.status(400).end(JSON.stringify(userPayload));
-            return
-        }
-
         const result = await dbMongo.find(doc, { dogId: req.body.dogId });
 
         res.status(200).end(JSON.stringify(result));
