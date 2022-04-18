@@ -74,6 +74,28 @@ exports.updateOne = async function (collection, id, data) {
     .catch(err => ({ success: false, message: err }))
 }
 
+exports.addToSet = async function (collection, id, data) {
+  const dbClient = await client.connect();
+
+  return await dbClient
+    .db(DATABASE_NAME)
+    .collection(collection)
+    .updateOne({ "_id": ObjectId(id) }, { $addToSet: data })
+    .then(result => ({ success: true, result: result }))
+    .catch(err => ({ success: false, message: err }))
+}
+
+exports.pullFromSet = async function (collection, id, data) {
+  const dbClient = await client.connect();
+
+  return await dbClient
+    .db(DATABASE_NAME)
+    .collection(collection)
+    .updateOne({ "_id": ObjectId(id) }, { $pull: data })
+    .then(result => ({ success: true, result: result }))
+    .catch(err => ({ success: false, message: err }))
+}
+
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
