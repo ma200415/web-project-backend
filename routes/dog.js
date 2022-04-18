@@ -20,20 +20,12 @@ router.post('/', async function (req, res, next) {
     try {
         const payload = {}
 
-        if (req.body.name != null && String(req.body.name).trim() != '') {
-            payload.name = req.body.name
-        }
+        for (const property in req.body) {
+            const value = req.body[property]
 
-        if (req.body.breed != null && String(req.body.breed).trim() != '') {
-            payload.breed = req.body.breed
-        }
-
-        if (req.body.birth != null && String(req.body.birth).trim() != '') {
-            payload.birth = req.body.birth
-        }
-
-        if (req.body.gender != null && String(req.body.gender).trim() != '') {
-            payload.gender = req.body.gender
+            if (value != null && String(value).trim() !== "") {
+                payload[property] = property === "_id" ? (value.length === 24 && ObjectId(value)) : value
+            }
         }
 
         const result = await dbMongo.find(doc, payload);
