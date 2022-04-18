@@ -63,22 +63,4 @@ router.post('/', async function (req, res, next) {
   return
 });
 
-router.get('/all', async function (req, res, next) {
-  const userPayload = auth.getBearerTokenPayload(req)
-
-  if (!userPayload.success) {
-    res.status(400).end(JSON.stringify(userPayload));
-    return
-  } else if (!userPayload.user.payload.admin) {
-    res.status(400).end(JSON.stringify({ message: "You do not have permission to access" }));
-    return
-  }
-
-  const result = await dbMongo.find('user', {});
-
-  res.status(200).end(JSON.stringify(result));
-
-  return
-})
-
 module.exports = router;
