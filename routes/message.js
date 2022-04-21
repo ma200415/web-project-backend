@@ -68,6 +68,57 @@ router.post('/add', async function (req, res, next) {
     return
 });
 
+router.post('/append', async function (req, res, next) {
+    let responseFail
+
+    try {
+        const userPayload = auth.getBearerTokenPayload(req)
+
+        if (!userPayload.success) {
+            res.status(400).end(JSON.stringify(userPayload));
+            return
+        }
+
+        const message = {
+            message: req.body.message,
+            userId: req.body.userId,
+            createTimestamp: new Date()
+        }
+
+        const result = await dbMongo.addToSet(doc, req.body.messageId, message);
+
+        res.status(200).end(JSON.stringify(result));
+
+        return
+    } catch (err) {
+        console.log(`${doc}/append`, err)
+
+        responseFail = new ResponseFail("error", String(err))
+    }
+
+    res.status(400).end(responseFail.json());
+
+    return
+});
+
+router.post('/id', async (req, res, next) => {
+    try {
+        const result = await dbMongo.findOne(doc, { _id: ObjectId(req.body.id) });
+
+        res.status(200).end(JSON.stringify(result));
+
+        return
+    } catch (error) {
+        console.log(`/${doc}/id`, error)
+
+        const responseFail = new ResponseFail("error", error)
+
+        res.status(400).end(responseFail);
+
+        return
+    }
+})
+
 // router.post('/add', async function (req, res, next) {
 //     let responseFail
 

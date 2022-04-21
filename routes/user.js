@@ -10,7 +10,7 @@ const auth = require('../services/auth');
 
 const doc = "user"
 
-router.post('/name', async (req, res, next) => {
+router.post('/id', async (req, res, next) => {
   try {
     const result = await dbMongo.findOne(doc, { _id: ObjectId(req.body.id) });
 
@@ -18,7 +18,7 @@ router.post('/name', async (req, res, next) => {
 
     return
   } catch (error) {
-    console.log("/user/name", error)
+    console.log("/user/id", error)
 
     const responseFail = new ResponseFail("error", error)
 

@@ -207,7 +207,7 @@ router.post('/delete', async function (req, res, next) {
     }
 });
 
-router.post('/name', async function (req, res, next) {
+router.post('/id', async function (req, res, next) {
     try {
         const result = await dbMongo.findOne(doc, { _id: ObjectId(req.body.id) });
 
@@ -215,7 +215,7 @@ router.post('/name', async function (req, res, next) {
 
         return
     } catch (error) {
-        console.log("/dog/name", error)
+        console.log("/dog/id", error)
 
         const responseFail = new ResponseFail("error", error)
 
