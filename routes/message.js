@@ -81,11 +81,11 @@ router.post('/append', async function (req, res, next) {
 
         const message = {
             message: req.body.message,
-            userId: req.body.userId,
+            userId: userPayload.user.payload._id,
             createTimestamp: new Date()
         }
 
-        const result = await dbMongo.addToSet(doc, req.body.messageId, message);
+        const result = await dbMongo.addToSet(doc, req.body.messageId, { replys: message });
 
         res.status(200).end(JSON.stringify(result));
 
