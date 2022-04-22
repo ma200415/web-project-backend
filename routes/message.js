@@ -22,9 +22,21 @@ router.get('/', async function (req, res) {
             return
         }
 
-        const result = await dbMongo.find(doc, { userId: userPayload.user.payload._id });
+        let result
 
-        res.status(200).end(JSON.stringify(result));
+        switch (userPayload.user.payload.role) {
+            case "employee":
+                result = await dbMongo.find(doc, {});
+                res.status(200).end(JSON.stringify(result));
+                break;
+            case "public":
+                result = await dbMongo.find(doc, { userId: userPayload.user.payload._id });
+                res.status(200).end(JSON.stringify(result));
+                break;
+            default:
+                res.status(400).end(JSON.stringify({ message: "undefined role" }));
+                break;
+        }
 
         return
     } catch (err) {
