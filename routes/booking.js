@@ -22,7 +22,9 @@ router.get('/', async function (req, res) {
             return
         }
 
-        const result = await dbMongo.find(doc, { userId: userPayload.user.payload._id });
+        const result = await dbMongo.find(doc,
+            userPayload.user.payload.role === "employee" ? {} : { userId: userPayload.user.payload._id }
+        );
 
         res.status(200).end(JSON.stringify(result));
 
