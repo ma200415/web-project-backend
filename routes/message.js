@@ -50,6 +50,31 @@ router.get('/', async function (req, res) {
     return
 });
 
+router.post('/id', async (req, res, next) => {
+    try {
+        const userPayload = auth.getBearerTokenPayload(req)
+
+        if (!userPayload.success) {
+            res.status(400).end(JSON.stringify(userPayload));
+            return
+        }
+
+        const result = await dbMongo.findOne(doc, { _id: ObjectId(req.body.id) });
+
+        res.status(200).end(JSON.stringify(result));
+
+        return
+    } catch (error) {
+        console.log(`${doc}/`, err)
+
+        const responseFail = new ResponseFail("error", error)
+
+        res.status(400).end(responseFail);
+
+        return
+    }
+})
+
 router.post('/add', async function (req, res, next) {
     let responseFail
 
