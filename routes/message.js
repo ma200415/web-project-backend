@@ -156,168 +156,46 @@ router.post('/id', async (req, res, next) => {
     }
 })
 
-// router.post('/add', async function (req, res, next) {
-//     let responseFail
+router.post('/delete', async function (req, res, next) {
+    try {
+        const userPayload = auth.getBearerTokenPayload(req)
 
-//     try {
-//         const userPayload = auth.getBearerTokenPayload(req)
+        if (!userPayload.success) {
+            res.status(400).end(JSON.stringify(userPayload));
+            return
+        }
 
-//         if (!userPayload.success) {
-//             res.status(400).end(JSON.stringify(userPayload));
-//             return
-//         } else if (userPayload.user.payload.role !== "employee") {
-//             res.status(400).end(JSON.stringify({ message: "You do not have permission to action" }));
-//             return
-//         }
+        if (userPayload.user.payload.role !== "employee") {
+            res.status(400).end(JSON.stringify({ message: "You do not have permission to action" }));
+            return
+        }
 
-//         const form = new formidable.IncomingForm();
+        let result
 
-//         form.parse(req, async (err, fields, files) => {
-//             if (fields.name == null || String(fields.name).trim() == "") {
-//                 responseFail = new ResponseFail("name", "Required*")
+        if (req.body.index === 0) {
+            result = await dbMongo.deleteOne(doc, req.body.messageId)
+        } else {
+            const payload = {
+                message: req.body.message,
+                userId: req.body.userId,
+                createTimestamp: new Date(req.body.createTimestamp)
+            }
 
-//                 res.status(400).end(responseFail.json());
-//             } else {
-//                 const dog = new Dog()
+            result = await dbMongo.pullFromSet(doc, req.body.messageId, { replys: payload });
+        }
 
-//                 const uploadPhoto = files.photo;
+        res.status(200).end(JSON.stringify({/* success: result.success, message: result.message */ }));
+        return
+    } catch (error) {
+        console.log(`/${doc}/delete`, error)
 
-//                 if (uploadPhoto.size > 0) {
-//                     switch (uploadPhoto.mimetype) {
-//                         case "image/jpeg":
-//                         case "image/png":
-//                             const buffer = fs.readFileSync(uploadPhoto.filepath)
+        const responseFail = new ResponseFail("error", error)
 
-//                             dog.photo = new Buffer.from(buffer).toString('base64')
-//                             break;
-//                         default:
-//                             responseFail = new ResponseFail("error", "Upload file type is not supported")
+        res.status(400).end(responseFail);
 
-//                             res.status(400).end(responseFail.json());
-
-//                             break;
-//                     }
-//                 }
-
-//                 dog.name = fields.name
-//                 dog.breed = fields.breed
-//                 dog.birthday = fields.birthday
-//                 dog.gender = fields.gender
-//                 dog.location = fields.location
-//                 dog.addBy = userPayload.user.payload._id
-//                 dog.addTimestamp = new Date()
-
-//                 const result = await dbMongo.insertOne(doc, dog);
-
-//                 res.status(200).end(JSON.stringify({ success: result.success, message: result.message }));
-//             }
-//         });
-//     } catch (err) {
-//         console.log("/dog/add", err)
-
-//         responseFail = new ResponseFail("error", String(err))
-
-//         res.status(400).end(responseFail.json());
-//     }
-
-//     return
-// });
-
-// router.post('/edit', async function (req, res, next) {
-//     let responseFail
-
-//     try {
-//         const userPayload = auth.getBearerTokenPayload(req)
-
-//         if (!userPayload.success) {
-//             res.status(400).end(JSON.stringify(userPayload));
-//             return
-//         } else if (userPayload.user.payload.role !== "employee") {
-//             res.status(400).end(JSON.stringify({ message: "You do not have permission to action" }));
-//             return
-//         }
-
-//         const form = new formidable.IncomingForm();
-
-//         form.parse(req, async (err, fields, files) => {
-//             const dog = new Dog()
-
-//             const uploadPhoto = files.photo;
-
-//             if (uploadPhoto.size > 0) {
-//                 switch (uploadPhoto.mimetype) {
-//                     case "image/jpeg":
-//                     case "image/png":
-//                         const buffer = fs.readFileSync(uploadPhoto.filepath)
-
-//                         dog.photo = new Buffer.from(buffer).toString('base64')
-//                         break;
-//                     default:
-//                         responseFail = new ResponseFail("error", "Upload file type is not supported")
-
-//                         res.status(400).end(responseFail.json());
-
-//                         break;
-//                 }
-//             } else {
-//                 dog.photo = fields.photo != null && String(fields.photo).trim() != "" && String(fields.photo) != "null" ? fields.photo : null
-//             }
-
-//             dog.name = fields.name
-//             dog.breed = fields.breed
-//             dog.birthday = fields.birthday
-//             dog.gender = fields.gender
-//             dog.location = fields.location
-//             dog.editBy = userPayload.user.payload._id
-//             dog.editTimestamp = new Date()
-
-//             const result = await dbMongo.updateOne(doc, fields.dogId, dog);
-
-//             res.status(200).end(JSON.stringify(result));
-//             return
-//         });
-
-//         return
-//     } catch (err) {
-//         console.log("/dog/edit", err)
-
-//         responseFail = new ResponseFail("error", String(err))
-
-//         res.status(400).end(responseFail.json());
-//     }
-
-//     return
-// });
-
-// router.post('/delete', async function (req, res, next) {
-//     let responseFail
-
-//     try {
-//         const userPayload = auth.getBearerTokenPayload(req)
-
-//         if (!userPayload.success) {
-//             res.status(400).end(JSON.stringify(userPayload));
-//             return
-//         } else if (userPayload.user.payload.role !== "employee") {
-//             res.status(400).end(JSON.stringify({ message: "You do not have permission to action" }));
-//             return
-//         }
-
-//         const result = await dbMongo.deleteOne(doc, req.body.dogId);
-
-//         res.status(200).end(JSON.stringify({ success: result.success, message: result.message }));
-
-//         return
-//     } catch (err) {
-//         console.log("/dog/delete", err)
-
-//         responseFail = new ResponseFail("error", String(err))
-
-//         res.status(400).end(responseFail.json());
-
-//         return
-//     }
-// });
+        return
+    }
+});
 
 router.get('/all', async function (req, res, next) {
     try {
