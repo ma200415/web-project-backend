@@ -197,22 +197,4 @@ router.post('/delete', async function (req, res, next) {
     }
 });
 
-router.get('/all', async function (req, res, next) {
-    try {
-        const result = await dbMongo.find(doc, {});
-
-        res.status(200).end(JSON.stringify(result));
-
-        return
-    } catch (error) {
-        console.log(`${doc}/all`, error)
-
-        const responseFail = new ResponseFail("error", error)
-
-        res.status(200).end(responseFail);
-
-        return
-    }
-})
-
 module.exports = router;

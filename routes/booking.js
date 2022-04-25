@@ -97,12 +97,4 @@ router.post('/new', async function (req, res) {
     }
 });
 
-router.get('/all', async function (req, res) {
-    const result = await dbMongo.find(doc, {});
-
-    res.status(200).end(JSON.stringify(result));
-
-    return
-})
-
 module.exports = router;
